@@ -1,0 +1,672 @@
+User Datagram Protocol
+Origem: Wikipédia, a enciclopédia livre.
+Saltar para a navegaçãoSaltar para a pesquisa
+Pilha de protocolos TCP/IP
+Camada de Aplicação
+BGP DHCP DNS FTP HTTP IMAP LDAP MGCP NNTP NTP POP ONC/RPC RIP SIP SMTP SNMP SSH Telnet TLS/SSL XMPP outros...
+Camada de Transporte
+TCP UDP RTP DCCP SCTP RSVP outros...
+Camada de Rede
+OSPF IP IPv4 IPv6 ICMP ICMPv6 ECN IGMP IPsec
+Camada de Ligação de Dados
+NDP ARP túneis... L2TP PPP MAC Ethernet DSL RDIS FDDI outros...
+vde
+O User Datagram Protocol (UDP) é um protocolo simples da camada de transporte. Ele é descrito na RFC 768 e permite que a aplicação envie um datagrama encapsulado num pacote IPv4 ou IPv6 a um destino, porém sem qualquer tipo de garantia que o pacote chegue corretamente (ou de qualquer modo).[1]
+
+O protocolo UDP não é confiável. Caso garantias sejam necessárias, é preciso implementar uma série de estruturas de controle, tais como timeouts, retransmissões, acknowledgements, controle de fluxo, etc. Cada datagrama UDP tem um tamanho e pode ser considerado como um registro indivisível, diferentemente do TCP, que é um protocolo orientado a fluxos de bytes sem início e sem fim.[1]Também dizemos que o UDP é um serviço sem conexão, pois não há necessidade de manter um relacionamento longo entre cliente e o servidor. Assim, um cliente UDP pode criar um socket, enviar um datagrama para um servidor e imediatamente enviar outro datagrama com o mesmo socket para um servidor diferente. Da mesma forma, um servidor poderia ler datagramas vindos de diversos clientes, usando um único socket.
+
+O UDP também fornece os serviços de broadcast e multicast, permitindo que um único cliente envie pacotes para vários outros na rede.
+
+
+Índice
+1	História
+2	Funcionamento
+3	Cabeçalho UDP
+4	Seleção do número de portas no UDP
+5	Vantagens do uso do UDP
+6	Notas e Referências
+7	Ligações externas
+História[editar | editar código-fonte]
+O trabalho original de Vint Cerf e Bob Kahn sobre a Internet descreveu o protocolo TCP, que provia todo o transporte e serviços de encaminhamento na Internet. Kahn queria que o protocolo suportasse uma série de serviços de transporte, desde a entrega sequenciada de dados totalmente confiável (modelo de circuito virtual) até o serviço de datagrama, onde a aplicação fazia uso direto do serviço básico de rede, o que poderia implicar em pacotes ocasionalmente perdidos, corrompidos ou reordenados.
+
+Entretanto, o esforço inicial para implementar TCP resultou numa versão que somente permitiu circuitos virtuais. O modelo funcionou bem para transferência de arquivos e aplicações de logins remotos, mas alguns dos trabalhos em aplicações avançadas como pacotes de voz mostraram que, em alguns casos, a perda de pacotes deveria ser corrigida pela aplicação e não pelo protocolo TCP. Isso levou a uma reorganização do TCP original em dois protocolos: o simples IP que provia apenas o endereçamento e o roteamento dos pacotes individuais e o TCP em separado, que se preocupava com o controle do fluxo e a recuperação de pacotes perdidos.
+
+Para as aplicações que não queriam os serviços de TCP, uma alternativa chamada UDP (User Datagram Protocol) foi adicionada para prover acesso direto ao serviço básico de IP.
+
+Funcionamento[editar | editar código-fonte]
+O UDP dá às aplicações acesso direto ao serviço de entrega de datagramas, como o serviço de entrega que o IP dá. O UDP é pouco confiável, sendo um protocolo não orientado para conexão. Não existem técnicas no protocolo para confirmar que os dados chegaram ao destino corretamente. O UDP usa número de porta de origem e de destino de 16 bits.
+
+O UDP é um acrônimo do termo inglês User Datagram Protocol que significa protocolo de datagramas de utilizador (ou usuário). O UDP faz a entrega de mensagens independentes, designadas por datagramas, entre aplicações ou processos, em sistemas host. A entrega pode ser feita fora de ordem e datagramas podem ser perdidos. A integridade dos dados pode ser conferida por um "checksum" (um campo no cabeçalho de checagem por soma) baseado em complemento de um, de 16 bits.
+
+Os pontos de acesso do UDP são geralmente designados por "Portas de protocolo" ou "portas" ou até "portos", em que cada unidade de transmissão de dados UDP identifica o endereço IP e o número de porta do destino e da fonte da mensagem, os números podendo ser diferentes em ambos os casos.
+
+A diferença básica entre o UDP e o TCP é o fato de que o TCP é um protocolo orientado à conexão e, portanto, inclui vários mecanismos para iniciar, manter e encerrar a comunicação, negociar tamanhos de pacotes, detectar e corrigir erros, evitar congestionamento do fluxo e permitir a retransmissão de pacotes corrompidos, independente da qualidade do meio físicos.
+
+O UDP, por sua vez, é feito para transmitir dados pouco sensíveis, como fluxos de áudio e vídeo, ou para comunicação sem conexão como é o caso da negociação DHCP ou tradução de endereços por DNS. Os dados são transmitidos apenas uma vez, incluindo apenas um frágil, e opcional, sistema de CRC de 16 bits. Os pacotes que chegam corrompidos são simplesmente descartados, sem que o emissor sequer saiba do problema. Por outro lado, a ausência de estruturas de controle complexas garante ao UDP alta eficiência, já que cada pacote é composto praticamente somente por dados.
+
+Cabeçalho UDP[editar | editar código-fonte]
+O cabeçalho UDP é extremamente simples, contendo apenas os números de porta, comprimento da mensagem e o checksum. O cabeçalho dos datagramas UDP é colocado a seguir ao cabeçalho IP.
+
+Porta origem	Porta destino	Comprimento da mensagem	Checksum
+Os campos em laranja são opcionais. A porta de origem geralmente especifica a porta desejada de resposta, mas pode ser omitida. Isso tipicamente ocorre em comunicações broadcast ou mensagens de pânico, que notificam sobre a queda de um equipamento.
+
+Seleção do número de portas no UDP[editar | editar código-fonte]
+Os computadores que pretendem estabelecer uma comunicação devem definir um número de porta. Para o servidor (Processo), e aguarda pela chegada de mensagens, datagramas, o cliente seleciona uma porta local, para recebimento de datagramas e envia datagramas para a porta selecionada para o processo do servidor. Muitos serviços conhecidos usam números de portas reservados, por exemplo: 161 para o Protocolo SNMP.
+
+Vantagens do uso do UDP[editar | editar código-fonte]
+O UDP é uma escolha adequada para fluxos de dados em tempo real, especialmente aqueles que admitem perda ou corrompimento de parte de seu conteúdo, tais como vídeos ou voz (VoIP). Aplicações sensíveis a atrasos na rede, mas poucos sensíveis a perdas de pacotes, como jogos de computadores, também podem se utilizar do UDP. As garantias de TCP envolvem retransmissão e espera de dados, como consequência, intensificam os efeitos de uma alta latência de rede.
+O UDP também suporta broadcasting e multicasting. Caso esses recursos sejam necessários, o UDP deverá necessariamente ser utilizado. Algum tratamento de erro pode ser adicionado, mas geralmente aplicações multicast também admitem perda de parte dos pacotes ou fazem retransmissões constantes (tal como o ocorre no protocolo DHCP).
+O UDP não perde tempo com criação ou destruição de conexões. Durante uma conexão, o UDP troca apenas 2 pacotes, enquanto no TCP esse número é superior a 10. Por isso, aplicações que encaixam num modelo de pergunta-resposta também são fortes candidatas a usar UDP. Entretanto, pode ser necessário implementar algoritmos de timeouts, acks e, no mínimo, retransmissão. Nesse caso, vale lembrar que se a troca de mensagens for muito intensa, o protocolo TCP pode voltar a ser vantajoso, já que seu custo de conexão será amortizado.
+Embora o processamento dos pacotes UDP seja realmente mais rápido, quando as garantias de confiabilidade e ordenação são necessárias, é pouco provável que uma implementação em UDP obterá resultados melhores do que o uso direto do TCP. Em primeiro lugar, corre-se o risco de que uma implementação ingênua feita em UDP seja menos eficiente do que os algoritmos já testados e otimizados presentes no TCP. Em segundo lugar, boa parte do protocolo TCP, nos principais sistemas operacionais, opera em modo núcleo, tendo portanto uma execução mais privilegiada do que um protocolo de aplicação teria. Finalmente, é válido lembrar que muitas placas de rede já possuem o TCP programado em seu firmware o que permite, por exemplo, o cálculo de checksum por hardware. Por isso, o protocolo UDP não deveria ser utilizado para fluxos de bytes confiáveis, tais como a transferência de arquivos. Como exemplo, podemos citar o protocolo TFTP, exceção a essa regra, que foi feito para redes locais, de alta confiabilidade. Na internet, seu desempenho é muito inferior ao sua versão confiável, o protocolo FTP.
+
+User Datagram Protocol
+Origem: Wikipédia, a enciclopédia livre.
+Saltar para a navegaçãoSaltar para a pesquisa
+Pilha de protocolos TCP/IP
+Camada de Aplicação
+BGP DHCP DNS FTP HTTP IMAP LDAP MGCP NNTP NTP POP ONC/RPC RIP SIP SMTP SNMP SSH Telnet TLS/SSL XMPP outros...
+Camada de Transporte
+TCP UDP RTP DCCP SCTP RSVP outros...
+Camada de Rede
+OSPF IP IPv4 IPv6 ICMP ICMPv6 ECN IGMP IPsec
+Camada de Ligação de Dados
+NDP ARP túneis... L2TP PPP MAC Ethernet DSL RDIS FDDI outros...
+vde
+O User Datagram Protocol (UDP) é um protocolo simples da camada de transporte. Ele é descrito na RFC 768 e permite que a aplicação envie um datagrama encapsulado num pacote IPv4 ou IPv6 a um destino, porém sem qualquer tipo de garantia que o pacote chegue corretamente (ou de qualquer modo).[1]
+
+O protocolo UDP não é confiável. Caso garantias sejam necessárias, é preciso implementar uma série de estruturas de controle, tais como timeouts, retransmissões, acknowledgements, controle de fluxo, etc. Cada datagrama UDP tem um tamanho e pode ser considerado como um registro indivisível, diferentemente do TCP, que é um protocolo orientado a fluxos de bytes sem início e sem fim.[1]Também dizemos que o UDP é um serviço sem conexão, pois não há necessidade de manter um relacionamento longo entre cliente e o servidor. Assim, um cliente UDP pode criar um socket, enviar um datagrama para um servidor e imediatamente enviar outro datagrama com o mesmo socket para um servidor diferente. Da mesma forma, um servidor poderia ler datagramas vindos de diversos clientes, usando um único socket.
+
+O UDP também fornece os serviços de broadcast e multicast, permitindo que um único cliente envie pacotes para vários outros na rede.
+
+
+Índice
+1	História
+2	Funcionamento
+3	Cabeçalho UDP
+4	Seleção do número de portas no UDP
+5	Vantagens do uso do UDP
+6	Notas e Referências
+7	Ligações externas
+História[editar | editar código-fonte]
+O trabalho original de Vint Cerf e Bob Kahn sobre a Internet descreveu o protocolo TCP, que provia todo o transporte e serviços de encaminhamento na Internet. Kahn queria que o protocolo suportasse uma série de serviços de transporte, desde a entrega sequenciada de dados totalmente confiável (modelo de circuito virtual) até o serviço de datagrama, onde a aplicação fazia uso direto do serviço básico de rede, o que poderia implicar em pacotes ocasionalmente perdidos, corrompidos ou reordenados.
+
+Entretanto, o esforço inicial para implementar TCP resultou numa versão que somente permitiu circuitos virtuais. O modelo funcionou bem para transferência de arquivos e aplicações de logins remotos, mas alguns dos trabalhos em aplicações avançadas como pacotes de voz mostraram que, em alguns casos, a perda de pacotes deveria ser corrigida pela aplicação e não pelo protocolo TCP. Isso levou a uma reorganização do TCP original em dois protocolos: o simples IP que provia apenas o endereçamento e o roteamento dos pacotes individuais e o TCP em separado, que se preocupava com o controle do fluxo e a recuperação de pacotes perdidos.
+
+Para as aplicações que não queriam os serviços de TCP, uma alternativa chamada UDP (User Datagram Protocol) foi adicionada para prover acesso direto ao serviço básico de IP.
+
+Funcionamento[editar | editar código-fonte]
+O UDP dá às aplicações acesso direto ao serviço de entrega de datagramas, como o serviço de entrega que o IP dá. O UDP é pouco confiável, sendo um protocolo não orientado para conexão. Não existem técnicas no protocolo para confirmar que os dados chegaram ao destino corretamente. O UDP usa número de porta de origem e de destino de 16 bits.
+
+O UDP é um acrônimo do termo inglês User Datagram Protocol que significa protocolo de datagramas de utilizador (ou usuário). O UDP faz a entrega de mensagens independentes, designadas por datagramas, entre aplicações ou processos, em sistemas host. A entrega pode ser feita fora de ordem e datagramas podem ser perdidos. A integridade dos dados pode ser conferida por um "checksum" (um campo no cabeçalho de checagem por soma) baseado em complemento de um, de 16 bits.
+
+Os pontos de acesso do UDP são geralmente designados por "Portas de protocolo" ou "portas" ou até "portos", em que cada unidade de transmissão de dados UDP identifica o endereço IP e o número de porta do destino e da fonte da mensagem, os números podendo ser diferentes em ambos os casos.
+
+A diferença básica entre o UDP e o TCP é o fato de que o TCP é um protocolo orientado à conexão e, portanto, inclui vários mecanismos para iniciar, manter e encerrar a comunicação, negociar tamanhos de pacotes, detectar e corrigir erros, evitar congestionamento do fluxo e permitir a retransmissão de pacotes corrompidos, independente da qualidade do meio físicos.
+
+O UDP, por sua vez, é feito para transmitir dados pouco sensíveis, como fluxos de áudio e vídeo, ou para comunicação sem conexão como é o caso da negociação DHCP ou tradução de endereços por DNS. Os dados são transmitidos apenas uma vez, incluindo apenas um frágil, e opcional, sistema de CRC de 16 bits. Os pacotes que chegam corrompidos são simplesmente descartados, sem que o emissor sequer saiba do problema. Por outro lado, a ausência de estruturas de controle complexas garante ao UDP alta eficiência, já que cada pacote é composto praticamente somente por dados.
+
+Cabeçalho UDP[editar | editar código-fonte]
+O cabeçalho UDP é extremamente simples, contendo apenas os números de porta, comprimento da mensagem e o checksum. O cabeçalho dos datagramas UDP é colocado a seguir ao cabeçalho IP.
+
+Porta origem	Porta destino	Comprimento da mensagem	Checksum
+Os campos em laranja são opcionais. A porta de origem geralmente especifica a porta desejada de resposta, mas pode ser omitida. Isso tipicamente ocorre em comunicações broadcast ou mensagens de pânico, que notificam sobre a queda de um equipamento.
+
+Seleção do número de portas no UDP[editar | editar código-fonte]
+Os computadores que pretendem estabelecer uma comunicação devem definir um número de porta. Para o servidor (Processo), e aguarda pela chegada de mensagens, datagramas, o cliente seleciona uma porta local, para recebimento de datagramas e envia datagramas para a porta selecionada para o processo do servidor. Muitos serviços conhecidos usam números de portas reservados, por exemplo: 161 para o Protocolo SNMP.
+
+Vantagens do uso do UDP[editar | editar código-fonte]
+O UDP é uma escolha adequada para fluxos de dados em tempo real, especialmente aqueles que admitem perda ou corrompimento de parte de seu conteúdo, tais como vídeos ou voz (VoIP). Aplicações sensíveis a atrasos na rede, mas poucos sensíveis a perdas de pacotes, como jogos de computadores, também podem se utilizar do UDP. As garantias de TCP envolvem retransmissão e espera de dados, como consequência, intensificam os efeitos de uma alta latência de rede.
+O UDP também suporta broadcasting e multicasting. Caso esses recursos sejam necessários, o UDP deverá necessariamente ser utilizado. Algum tratamento de erro pode ser adicionado, mas geralmente aplicações multicast também admitem perda de parte dos pacotes ou fazem retransmissões constantes (tal como o ocorre no protocolo DHCP).
+O UDP não perde tempo com criação ou destruição de conexões. Durante uma conexão, o UDP troca apenas 2 pacotes, enquanto no TCP esse número é superior a 10. Por isso, aplicações que encaixam num modelo de pergunta-resposta também são fortes candidatas a usar UDP. Entretanto, pode ser necessário implementar algoritmos de timeouts, acks e, no mínimo, retransmissão. Nesse caso, vale lembrar que se a troca de mensagens for muito intensa, o protocolo TCP pode voltar a ser vantajoso, já que seu custo de conexão será amortizado.
+Embora o processamento dos pacotes UDP seja realmente mais rápido, quando as garantias de confiabilidade e ordenação são necessárias, é pouco provável que uma implementação em UDP obterá resultados melhores do que o uso direto do TCP. Em primeiro lugar, corre-se o risco de que uma implementação ingênua feita em UDP seja menos eficiente do que os algoritmos já testados e otimizados presentes no TCP. Em segundo lugar, boa parte do protocolo TCP, nos principais sistemas operacionais, opera em modo núcleo, tendo portanto uma execução mais privilegiada do que um protocolo de aplicação teria. Finalmente, é válido lembrar que muitas placas de rede já possuem o TCP programado em seu firmware o que permite, por exemplo, o cálculo de checksum por hardware. Por isso, o protocolo UDP não deveria ser utilizado para fluxos de bytes confiáveis, tais como a transferência de arquivos. Como exemplo, podemos citar o protocolo TFTP, exceção a essa regra, que foi feito para redes locais, de alta confiabilidade. Na internet, seu desempenho é muito inferior ao sua versão confiável, o protocolo FTP.
+
+
+User Datagram Protocol
+Origem: Wikipédia, a enciclopédia livre.
+Saltar para a navegaçãoSaltar para a pesquisa
+Pilha de protocolos TCP/IP
+Camada de Aplicação
+BGP DHCP DNS FTP HTTP IMAP LDAP MGCP NNTP NTP POP ONC/RPC RIP SIP SMTP SNMP SSH Telnet TLS/SSL XMPP outros...
+Camada de Transporte
+TCP UDP RTP DCCP SCTP RSVP outros...
+Camada de Rede
+OSPF IP IPv4 IPv6 ICMP ICMPv6 ECN IGMP IPsec
+Camada de Ligação de Dados
+NDP ARP túneis... L2TP PPP MAC Ethernet DSL RDIS FDDI outros...
+vde
+O User Datagram Protocol (UDP) é um protocolo simples da camada de transporte. Ele é descrito na RFC 768 e permite que a aplicação envie um datagrama encapsulado num pacote IPv4 ou IPv6 a um destino, porém sem qualquer tipo de garantia que o pacote chegue corretamente (ou de qualquer modo).[1]
+
+O protocolo UDP não é confiável. Caso garantias sejam necessárias, é preciso implementar uma série de estruturas de controle, tais como timeouts, retransmissões, acknowledgements, controle de fluxo, etc. Cada datagrama UDP tem um tamanho e pode ser considerado como um registro indivisível, diferentemente do TCP, que é um protocolo orientado a fluxos de bytes sem início e sem fim.[1]Também dizemos que o UDP é um serviço sem conexão, pois não há necessidade de manter um relacionamento longo entre cliente e o servidor. Assim, um cliente UDP pode criar um socket, enviar um datagrama para um servidor e imediatamente enviar outro datagrama com o mesmo socket para um servidor diferente. Da mesma forma, um servidor poderia ler datagramas vindos de diversos clientes, usando um único socket.
+
+O UDP também fornece os serviços de broadcast e multicast, permitindo que um único cliente envie pacotes para vários outros na rede.
+
+
+Índice
+1	História
+2	Funcionamento
+3	Cabeçalho UDP
+4	Seleção do número de portas no UDP
+5	Vantagens do uso do UDP
+6	Notas e Referências
+7	Ligações externas
+História[editar | editar código-fonte]
+O trabalho original de Vint Cerf e Bob Kahn sobre a Internet descreveu o protocolo TCP, que provia todo o transporte e serviços de encaminhamento na Internet. Kahn queria que o protocolo suportasse uma série de serviços de transporte, desde a entrega sequenciada de dados totalmente confiável (modelo de circuito virtual) até o serviço de datagrama, onde a aplicação fazia uso direto do serviço básico de rede, o que poderia implicar em pacotes ocasionalmente perdidos, corrompidos ou reordenados.
+
+Entretanto, o esforço inicial para implementar TCP resultou numa versão que somente permitiu circuitos virtuais. O modelo funcionou bem para transferência de arquivos e aplicações de logins remotos, mas alguns dos trabalhos em aplicações avançadas como pacotes de voz mostraram que, em alguns casos, a perda de pacotes deveria ser corrigida pela aplicação e não pelo protocolo TCP. Isso levou a uma reorganização do TCP original em dois protocolos: o simples IP que provia apenas o endereçamento e o roteamento dos pacotes individuais e o TCP em separado, que se preocupava com o controle do fluxo e a recuperação de pacotes perdidos.
+
+Para as aplicações que não queriam os serviços de TCP, uma alternativa chamada UDP (User Datagram Protocol) foi adicionada para prover acesso direto ao serviço básico de IP.
+
+Funcionamento[editar | editar código-fonte]
+O UDP dá às aplicações acesso direto ao serviço de entrega de datagramas, como o serviço de entrega que o IP dá. O UDP é pouco confiável, sendo um protocolo não orientado para conexão. Não existem técnicas no protocolo para confirmar que os dados chegaram ao destino corretamente. O UDP usa número de porta de origem e de destino de 16 bits.
+
+O UDP é um acrônimo do termo inglês User Datagram Protocol que significa protocolo de datagramas de utilizador (ou usuário). O UDP faz a entrega de mensagens independentes, designadas por datagramas, entre aplicações ou processos, em sistemas host. A entrega pode ser feita fora de ordem e datagramas podem ser perdidos. A integridade dos dados pode ser conferida por um "checksum" (um campo no cabeçalho de checagem por soma) baseado em complemento de um, de 16 bits.
+
+Os pontos de acesso do UDP são geralmente designados por "Portas de protocolo" ou "portas" ou até "portos", em que cada unidade de transmissão de dados UDP identifica o endereço IP e o número de porta do destino e da fonte da mensagem, os números podendo ser diferentes em ambos os casos.
+
+A diferença básica entre o UDP e o TCP é o fato de que o TCP é um protocolo orientado à conexão e, portanto, inclui vários mecanismos para iniciar, manter e encerrar a comunicação, negociar tamanhos de pacotes, detectar e corrigir erros, evitar congestionamento do fluxo e permitir a retransmissão de pacotes corrompidos, independente da qualidade do meio físicos.
+
+O UDP, por sua vez, é feito para transmitir dados pouco sensíveis, como fluxos de áudio e vídeo, ou para comunicação sem conexão como é o caso da negociação DHCP ou tradução de endereços por DNS. Os dados são transmitidos apenas uma vez, incluindo apenas um frágil, e opcional, sistema de CRC de 16 bits. Os pacotes que chegam corrompidos são simplesmente descartados, sem que o emissor sequer saiba do problema. Por outro lado, a ausência de estruturas de controle complexas garante ao UDP alta eficiência, já que cada pacote é composto praticamente somente por dados.
+
+Cabeçalho UDP[editar | editar código-fonte]
+O cabeçalho UDP é extremamente simples, contendo apenas os números de porta, comprimento da mensagem e o checksum. O cabeçalho dos datagramas UDP é colocado a seguir ao cabeçalho IP.
+
+Porta origem	Porta destino	Comprimento da mensagem	Checksum
+Os campos em laranja são opcionais. A porta de origem geralmente especifica a porta desejada de resposta, mas pode ser omitida. Isso tipicamente ocorre em comunicações broadcast ou mensagens de pânico, que notificam sobre a queda de um equipamento.
+
+Seleção do número de portas no UDP[editar | editar código-fonte]
+Os computadores que pretendem estabelecer uma comunicação devem definir um número de porta. Para o servidor (Processo), e aguarda pela chegada de mensagens, datagramas, o cliente seleciona uma porta local, para recebimento de datagramas e envia datagramas para a porta selecionada para o processo do servidor. Muitos serviços conhecidos usam números de portas reservados, por exemplo: 161 para o Protocolo SNMP.
+
+Vantagens do uso do UDP[editar | editar código-fonte]
+O UDP é uma escolha adequada para fluxos de dados em tempo real, especialmente aqueles que admitem perda ou corrompimento de parte de seu conteúdo, tais como vídeos ou voz (VoIP). Aplicações sensíveis a atrasos na rede, mas poucos sensíveis a perdas de pacotes, como jogos de computadores, também podem se utilizar do UDP. As garantias de TCP envolvem retransmissão e espera de dados, como consequência, intensificam os efeitos de uma alta latência de rede.
+O UDP também suporta broadcasting e multicasting. Caso esses recursos sejam necessários, o UDP deverá necessariamente ser utilizado. Algum tratamento de erro pode ser adicionado, mas geralmente aplicações multicast também admitem perda de parte dos pacotes ou fazem retransmissões constantes (tal como o ocorre no protocolo DHCP).
+O UDP não perde tempo com criação ou destruição de conexões. Durante uma conexão, o UDP troca apenas 2 pacotes, enquanto no TCP esse número é superior a 10. Por isso, aplicações que encaixam num modelo de pergunta-resposta também são fortes candidatas a usar UDP. Entretanto, pode ser necessário implementar algoritmos de timeouts, acks e, no mínimo, retransmissão. Nesse caso, vale lembrar que se a troca de mensagens for muito intensa, o protocolo TCP pode voltar a ser vantajoso, já que seu custo de conexão será amortizado.
+Embora o processamento dos pacotes UDP seja realmente mais rápido, quando as garantias de confiabilidade e ordenação são necessárias, é pouco provável que uma implementação em UDP obterá resultados melhores do que o uso direto do TCP. Em primeiro lugar, corre-se o risco de que uma implementação ingênua feita em UDP seja menos eficiente do que os algoritmos já testados e otimizados presentes no TCP. Em segundo lugar, boa parte do protocolo TCP, nos principais sistemas operacionais, opera em modo núcleo, tendo portanto uma execução mais privilegiada do que um protocolo de aplicação teria. Finalmente, é válido lembrar que muitas placas de rede já possuem o TCP programado em seu firmware o que permite, por exemplo, o cálculo de checksum por hardware. Por isso, o protocolo UDP não deveria ser utilizado para fluxos de bytes confiáveis, tais como a transferência de arquivos. Como exemplo, podemos citar o protocolo TFTP, exceção a essa regra, que foi feito para redes locais, de alta confiabilidade. Na internet, seu desempenho é muito inferior ao sua versão confiável, o protocolo FTP.
+
+
+User Datagram Protocol
+Origem: Wikipédia, a enciclopédia livre.
+Saltar para a navegaçãoSaltar para a pesquisa
+Pilha de protocolos TCP/IP
+Camada de Aplicação
+BGP DHCP DNS FTP HTTP IMAP LDAP MGCP NNTP NTP POP ONC/RPC RIP SIP SMTP SNMP SSH Telnet TLS/SSL XMPP outros...
+Camada de Transporte
+TCP UDP RTP DCCP SCTP RSVP outros...
+Camada de Rede
+OSPF IP IPv4 IPv6 ICMP ICMPv6 ECN IGMP IPsec
+Camada de Ligação de Dados
+NDP ARP túneis... L2TP PPP MAC Ethernet DSL RDIS FDDI outros...
+vde
+O User Datagram Protocol (UDP) é um protocolo simples da camada de transporte. Ele é descrito na RFC 768 e permite que a aplicação envie um datagrama encapsulado num pacote IPv4 ou IPv6 a um destino, porém sem qualquer tipo de garantia que o pacote chegue corretamente (ou de qualquer modo).[1]
+
+O protocolo UDP não é confiável. Caso garantias sejam necessárias, é preciso implementar uma série de estruturas de controle, tais como timeouts, retransmissões, acknowledgements, controle de fluxo, etc. Cada datagrama UDP tem um tamanho e pode ser considerado como um registro indivisível, diferentemente do TCP, que é um protocolo orientado a fluxos de bytes sem início e sem fim.[1]Também dizemos que o UDP é um serviço sem conexão, pois não há necessidade de manter um relacionamento longo entre cliente e o servidor. Assim, um cliente UDP pode criar um socket, enviar um datagrama para um servidor e imediatamente enviar outro datagrama com o mesmo socket para um servidor diferente. Da mesma forma, um servidor poderia ler datagramas vindos de diversos clientes, usando um único socket.
+
+O UDP também fornece os serviços de broadcast e multicast, permitindo que um único cliente envie pacotes para vários outros na rede.
+
+
+Índice
+1	História
+2	Funcionamento
+3	Cabeçalho UDP
+4	Seleção do número de portas no UDP
+5	Vantagens do uso do UDP
+6	Notas e Referências
+7	Ligações externas
+História[editar | editar código-fonte]
+O trabalho original de Vint Cerf e Bob Kahn sobre a Internet descreveu o protocolo TCP, que provia todo o transporte e serviços de encaminhamento na Internet. Kahn queria que o protocolo suportasse uma série de serviços de transporte, desde a entrega sequenciada de dados totalmente confiável (modelo de circuito virtual) até o serviço de datagrama, onde a aplicação fazia uso direto do serviço básico de rede, o que poderia implicar em pacotes ocasionalmente perdidos, corrompidos ou reordenados.
+
+Entretanto, o esforço inicial para implementar TCP resultou numa versão que somente permitiu circuitos virtuais. O modelo funcionou bem para transferência de arquivos e aplicações de logins remotos, mas alguns dos trabalhos em aplicações avançadas como pacotes de voz mostraram que, em alguns casos, a perda de pacotes deveria ser corrigida pela aplicação e não pelo protocolo TCP. Isso levou a uma reorganização do TCP original em dois protocolos: o simples IP que provia apenas o endereçamento e o roteamento dos pacotes individuais e o TCP em separado, que se preocupava com o controle do fluxo e a recuperação de pacotes perdidos.
+
+Para as aplicações que não queriam os serviços de TCP, uma alternativa chamada UDP (User Datagram Protocol) foi adicionada para prover acesso direto ao serviço básico de IP.
+
+Funcionamento[editar | editar código-fonte]
+O UDP dá às aplicações acesso direto ao serviço de entrega de datagramas, como o serviço de entrega que o IP dá. O UDP é pouco confiável, sendo um protocolo não orientado para conexão. Não existem técnicas no protocolo para confirmar que os dados chegaram ao destino corretamente. O UDP usa número de porta de origem e de destino de 16 bits.
+
+O UDP é um acrônimo do termo inglês User Datagram Protocol que significa protocolo de datagramas de utilizador (ou usuário). O UDP faz a entrega de mensagens independentes, designadas por datagramas, entre aplicações ou processos, em sistemas host. A entrega pode ser feita fora de ordem e datagramas podem ser perdidos. A integridade dos dados pode ser conferida por um "checksum" (um campo no cabeçalho de checagem por soma) baseado em complemento de um, de 16 bits.
+
+Os pontos de acesso do UDP são geralmente designados por "Portas de protocolo" ou "portas" ou até "portos", em que cada unidade de transmissão de dados UDP identifica o endereço IP e o número de porta do destino e da fonte da mensagem, os números podendo ser diferentes em ambos os casos.
+
+A diferença básica entre o UDP e o TCP é o fato de que o TCP é um protocolo orientado à conexão e, portanto, inclui vários mecanismos para iniciar, manter e encerrar a comunicação, negociar tamanhos de pacotes, detectar e corrigir erros, evitar congestionamento do fluxo e permitir a retransmissão de pacotes corrompidos, independente da qualidade do meio físicos.
+
+O UDP, por sua vez, é feito para transmitir dados pouco sensíveis, como fluxos de áudio e vídeo, ou para comunicação sem conexão como é o caso da negociação DHCP ou tradução de endereços por DNS. Os dados são transmitidos apenas uma vez, incluindo apenas um frágil, e opcional, sistema de CRC de 16 bits. Os pacotes que chegam corrompidos são simplesmente descartados, sem que o emissor sequer saiba do problema. Por outro lado, a ausência de estruturas de controle complexas garante ao UDP alta eficiência, já que cada pacote é composto praticamente somente por dados.
+
+Cabeçalho UDP[editar | editar código-fonte]
+O cabeçalho UDP é extremamente simples, contendo apenas os números de porta, comprimento da mensagem e o checksum. O cabeçalho dos datagramas UDP é colocado a seguir ao cabeçalho IP.
+
+Porta origem	Porta destino	Comprimento da mensagem	Checksum
+Os campos em laranja são opcionais. A porta de origem geralmente especifica a porta desejada de resposta, mas pode ser omitida. Isso tipicamente ocorre em comunicações broadcast ou mensagens de pânico, que notificam sobre a queda de um equipamento.
+
+Seleção do número de portas no UDP[editar | editar código-fonte]
+Os computadores que pretendem estabelecer uma comunicação devem definir um número de porta. Para o servidor (Processo), e aguarda pela chegada de mensagens, datagramas, o cliente seleciona uma porta local, para recebimento de datagramas e envia datagramas para a porta selecionada para o processo do servidor. Muitos serviços conhecidos usam números de portas reservados, por exemplo: 161 para o Protocolo SNMP.
+
+Vantagens do uso do UDP[editar | editar código-fonte]
+O UDP é uma escolha adequada para fluxos de dados em tempo real, especialmente aqueles que admitem perda ou corrompimento de parte de seu conteúdo, tais como vídeos ou voz (VoIP). Aplicações sensíveis a atrasos na rede, mas poucos sensíveis a perdas de pacotes, como jogos de computadores, também podem se utilizar do UDP. As garantias de TCP envolvem retransmissão e espera de dados, como consequência, intensificam os efeitos de uma alta latência de rede.
+O UDP também suporta broadcasting e multicasting. Caso esses recursos sejam necessários, o UDP deverá necessariamente ser utilizado. Algum tratamento de erro pode ser adicionado, mas geralmente aplicações multicast também admitem perda de parte dos pacotes ou fazem retransmissões constantes (tal como o ocorre no protocolo DHCP).
+O UDP não perde tempo com criação ou destruição de conexões. Durante uma conexão, o UDP troca apenas 2 pacotes, enquanto no TCP esse número é superior a 10. Por isso, aplicações que encaixam num modelo de pergunta-resposta também são fortes candidatas a usar UDP. Entretanto, pode ser necessário implementar algoritmos de timeouts, acks e, no mínimo, retransmissão. Nesse caso, vale lembrar que se a troca de mensagens for muito intensa, o protocolo TCP pode voltar a ser vantajoso, já que seu custo de conexão será amortizado.
+Embora o processamento dos pacotes UDP seja realmente mais rápido, quando as garantias de confiabilidade e ordenação são necessárias, é pouco provável que uma implementação em UDP obterá resultados melhores do que o uso direto do TCP. Em primeiro lugar, corre-se o risco de que uma implementação ingênua feita em UDP seja menos eficiente do que os algoritmos já testados e otimizados presentes no TCP. Em segundo lugar, boa parte do protocolo TCP, nos principais sistemas operacionais, opera em modo núcleo, tendo portanto uma execução mais privilegiada do que um protocolo de aplicação teria. Finalmente, é válido lembrar que muitas placas de rede já possuem o TCP programado em seu firmware o que permite, por exemplo, o cálculo de checksum por hardware. Por isso, o protocolo UDP não deveria ser utilizado para fluxos de bytes confiáveis, tais como a transferência de arquivos. Como exemplo, podemos citar o protocolo TFTP, exceção a essa regra, que foi feito para redes locais, de alta confiabilidade. Na internet, seu desempenho é muito inferior ao sua versão confiável, o protocolo FTP.
+
+User Datagram Protocol
+Origem: Wikipédia, a enciclopédia livre.
+Saltar para a navegaçãoSaltar para a pesquisa
+Pilha de protocolos TCP/IP
+Camada de Aplicação
+BGP DHCP DNS FTP HTTP IMAP LDAP MGCP NNTP NTP POP ONC/RPC RIP SIP SMTP SNMP SSH Telnet TLS/SSL XMPP outros...
+Camada de Transporte
+TCP UDP RTP DCCP SCTP RSVP outros...
+Camada de Rede
+OSPF IP IPv4 IPv6 ICMP ICMPv6 ECN IGMP IPsec
+Camada de Ligação de Dados
+NDP ARP túneis... L2TP PPP MAC Ethernet DSL RDIS FDDI outros...
+vde
+O User Datagram Protocol (UDP) é um protocolo simples da camada de transporte. Ele é descrito na RFC 768 e permite que a aplicação envie um datagrama encapsulado num pacote IPv4 ou IPv6 a um destino, porém sem qualquer tipo de garantia que o pacote chegue corretamente (ou de qualquer modo).[1]
+
+O protocolo UDP não é confiável. Caso garantias sejam necessárias, é preciso implementar uma série de estruturas de controle, tais como timeouts, retransmissões, acknowledgements, controle de fluxo, etc. Cada datagrama UDP tem um tamanho e pode ser considerado como um registro indivisível, diferentemente do TCP, que é um protocolo orientado a fluxos de bytes sem início e sem fim.[1]Também dizemos que o UDP é um serviço sem conexão, pois não há necessidade de manter um relacionamento longo entre cliente e o servidor. Assim, um cliente UDP pode criar um socket, enviar um datagrama para um servidor e imediatamente enviar outro datagrama com o mesmo socket para um servidor diferente. Da mesma forma, um servidor poderia ler datagramas vindos de diversos clientes, usando um único socket.
+
+O UDP também fornece os serviços de broadcast e multicast, permitindo que um único cliente envie pacotes para vários outros na rede.
+
+
+Índice
+1	História
+2	Funcionamento
+3	Cabeçalho UDP
+4	Seleção do número de portas no UDP
+5	Vantagens do uso do UDP
+6	Notas e Referências
+7	Ligações externas
+História[editar | editar código-fonte]
+O trabalho original de Vint Cerf e Bob Kahn sobre a Internet descreveu o protocolo TCP, que provia todo o transporte e serviços de encaminhamento na Internet. Kahn queria que o protocolo suportasse uma série de serviços de transporte, desde a entrega sequenciada de dados totalmente confiável (modelo de circuito virtual) até o serviço de datagrama, onde a aplicação fazia uso direto do serviço básico de rede, o que poderia implicar em pacotes ocasionalmente perdidos, corrompidos ou reordenados.
+
+Entretanto, o esforço inicial para implementar TCP resultou numa versão que somente permitiu circuitos virtuais. O modelo funcionou bem para transferência de arquivos e aplicações de logins remotos, mas alguns dos trabalhos em aplicações avançadas como pacotes de voz mostraram que, em alguns casos, a perda de pacotes deveria ser corrigida pela aplicação e não pelo protocolo TCP. Isso levou a uma reorganização do TCP original em dois protocolos: o simples IP que provia apenas o endereçamento e o roteamento dos pacotes individuais e o TCP em separado, que se preocupava com o controle do fluxo e a recuperação de pacotes perdidos.
+
+Para as aplicações que não queriam os serviços de TCP, uma alternativa chamada UDP (User Datagram Protocol) foi adicionada para prover acesso direto ao serviço básico de IP.
+
+Funcionamento[editar | editar código-fonte]
+O UDP dá às aplicações acesso direto ao serviço de entrega de datagramas, como o serviço de entrega que o IP dá. O UDP é pouco confiável, sendo um protocolo não orientado para conexão. Não existem técnicas no protocolo para confirmar que os dados chegaram ao destino corretamente. O UDP usa número de porta de origem e de destino de 16 bits.
+
+O UDP é um acrônimo do termo inglês User Datagram Protocol que significa protocolo de datagramas de utilizador (ou usuário). O UDP faz a entrega de mensagens independentes, designadas por datagramas, entre aplicações ou processos, em sistemas host. A entrega pode ser feita fora de ordem e datagramas podem ser perdidos. A integridade dos dados pode ser conferida por um "checksum" (um campo no cabeçalho de checagem por soma) baseado em complemento de um, de 16 bits.
+
+Os pontos de acesso do UDP são geralmente designados por "Portas de protocolo" ou "portas" ou até "portos", em que cada unidade de transmissão de dados UDP identifica o endereço IP e o número de porta do destino e da fonte da mensagem, os números podendo ser diferentes em ambos os casos.
+
+A diferença básica entre o UDP e o TCP é o fato de que o TCP é um protocolo orientado à conexão e, portanto, inclui vários mecanismos para iniciar, manter e encerrar a comunicação, negociar tamanhos de pacotes, detectar e corrigir erros, evitar congestionamento do fluxo e permitir a retransmissão de pacotes corrompidos, independente da qualidade do meio físicos.
+
+O UDP, por sua vez, é feito para transmitir dados pouco sensíveis, como fluxos de áudio e vídeo, ou para comunicação sem conexão como é o caso da negociação DHCP ou tradução de endereços por DNS. Os dados são transmitidos apenas uma vez, incluindo apenas um frágil, e opcional, sistema de CRC de 16 bits. Os pacotes que chegam corrompidos são simplesmente descartados, sem que o emissor sequer saiba do problema. Por outro lado, a ausência de estruturas de controle complexas garante ao UDP alta eficiência, já que cada pacote é composto praticamente somente por dados.
+
+Cabeçalho UDP[editar | editar código-fonte]
+O cabeçalho UDP é extremamente simples, contendo apenas os números de porta, comprimento da mensagem e o checksum. O cabeçalho dos datagramas UDP é colocado a seguir ao cabeçalho IP.
+
+Porta origem	Porta destino	Comprimento da mensagem	Checksum
+Os campos em laranja são opcionais. A porta de origem geralmente especifica a porta desejada de resposta, mas pode ser omitida. Isso tipicamente ocorre em comunicações broadcast ou mensagens de pânico, que notificam sobre a queda de um equipamento.
+
+Seleção do número de portas no UDP[editar | editar código-fonte]
+Os computadores que pretendem estabelecer uma comunicação devem definir um número de porta. Para o servidor (Processo), e aguarda pela chegada de mensagens, datagramas, o cliente seleciona uma porta local, para recebimento de datagramas e envia datagramas para a porta selecionada para o processo do servidor. Muitos serviços conhecidos usam números de portas reservados, por exemplo: 161 para o Protocolo SNMP.
+
+Vantagens do uso do UDP[editar | editar código-fonte]
+O UDP é uma escolha adequada para fluxos de dados em tempo real, especialmente aqueles que admitem perda ou corrompimento de parte de seu conteúdo, tais como vídeos ou voz (VoIP). Aplicações sensíveis a atrasos na rede, mas poucos sensíveis a perdas de pacotes, como jogos de computadores, também podem se utilizar do UDP. As garantias de TCP envolvem retransmissão e espera de dados, como consequência, intensificam os efeitos de uma alta latência de rede.
+O UDP também suporta broadcasting e multicasting. Caso esses recursos sejam necessários, o UDP deverá necessariamente ser utilizado. Algum tratamento de erro pode ser adicionado, mas geralmente aplicações multicast também admitem perda de parte dos pacotes ou fazem retransmissões constantes (tal como o ocorre no protocolo DHCP).
+O UDP não perde tempo com criação ou destruição de conexões. Durante uma conexão, o UDP troca apenas 2 pacotes, enquanto no TCP esse número é superior a 10. Por isso, aplicações que encaixam num modelo de pergunta-resposta também são fortes candidatas a usar UDP. Entretanto, pode ser necessário implementar algoritmos de timeouts, acks e, no mínimo, retransmissão. Nesse caso, vale lembrar que se a troca de mensagens for muito intensa, o protocolo TCP pode voltar a ser vantajoso, já que seu custo de conexão será amortizado.
+Embora o processamento dos pacotes UDP seja realmente mais rápido, quando as garantias de confiabilidade e ordenação são necessárias, é pouco provável que uma implementação em UDP obterá resultados melhores do que o uso direto do TCP. Em primeiro lugar, corre-se o risco de que uma implementação ingênua feita em UDP seja menos eficiente do que os algoritmos já testados e otimizados presentes no TCP. Em segundo lugar, boa parte do protocolo TCP, nos principais sistemas operacionais, opera em modo núcleo, tendo portanto uma execução mais privilegiada do que um protocolo de aplicação teria. Finalmente, é válido lembrar que muitas placas de rede já possuem o TCP programado em seu firmware o que permite, por exemplo, o cálculo de checksum por hardware. Por isso, o protocolo UDP não deveria ser utilizado para fluxos de bytes confiáveis, tais como a transferência de arquivos. Como exemplo, podemos citar o protocolo TFTP, exceção a essa regra, que foi feito para redes locais, de alta confiabilidade. Na internet, seu desempenho é muito inferior ao sua versão confiável, o protocolo FTP.
+
+User Datagram Protocol
+Origem: Wikipédia, a enciclopédia livre.
+Saltar para a navegaçãoSaltar para a pesquisa
+Pilha de protocolos TCP/IP
+Camada de Aplicação
+BGP DHCP DNS FTP HTTP IMAP LDAP MGCP NNTP NTP POP ONC/RPC RIP SIP SMTP SNMP SSH Telnet TLS/SSL XMPP outros...
+Camada de Transporte
+TCP UDP RTP DCCP SCTP RSVP outros...
+Camada de Rede
+OSPF IP IPv4 IPv6 ICMP ICMPv6 ECN IGMP IPsec
+Camada de Ligação de Dados
+NDP ARP túneis... L2TP PPP MAC Ethernet DSL RDIS FDDI outros...
+vde
+O User Datagram Protocol (UDP) é um protocolo simples da camada de transporte. Ele é descrito na RFC 768 e permite que a aplicação envie um datagrama encapsulado num pacote IPv4 ou IPv6 a um destino, porém sem qualquer tipo de garantia que o pacote chegue corretamente (ou de qualquer modo).[1]
+
+O protocolo UDP não é confiável. Caso garantias sejam necessárias, é preciso implementar uma série de estruturas de controle, tais como timeouts, retransmissões, acknowledgements, controle de fluxo, etc. Cada datagrama UDP tem um tamanho e pode ser considerado como um registro indivisível, diferentemente do TCP, que é um protocolo orientado a fluxos de bytes sem início e sem fim.[1]Também dizemos que o UDP é um serviço sem conexão, pois não há necessidade de manter um relacionamento longo entre cliente e o servidor. Assim, um cliente UDP pode criar um socket, enviar um datagrama para um servidor e imediatamente enviar outro datagrama com o mesmo socket para um servidor diferente. Da mesma forma, um servidor poderia ler datagramas vindos de diversos clientes, usando um único socket.
+
+O UDP também fornece os serviços de broadcast e multicast, permitindo que um único cliente envie pacotes para vários outros na rede.
+
+
+Índice
+1	História
+2	Funcionamento
+3	Cabeçalho UDP
+4	Seleção do número de portas no UDP
+5	Vantagens do uso do UDP
+6	Notas e Referências
+7	Ligações externas
+História[editar | editar código-fonte]
+O trabalho original de Vint Cerf e Bob Kahn sobre a Internet descreveu o protocolo TCP, que provia todo o transporte e serviços de encaminhamento na Internet. Kahn queria que o protocolo suportasse uma série de serviços de transporte, desde a entrega sequenciada de dados totalmente confiável (modelo de circuito virtual) até o serviço de datagrama, onde a aplicação fazia uso direto do serviço básico de rede, o que poderia implicar em pacotes ocasionalmente perdidos, corrompidos ou reordenados.
+
+Entretanto, o esforço inicial para implementar TCP resultou numa versão que somente permitiu circuitos virtuais. O modelo funcionou bem para transferência de arquivos e aplicações de logins remotos, mas alguns dos trabalhos em aplicações avançadas como pacotes de voz mostraram que, em alguns casos, a perda de pacotes deveria ser corrigida pela aplicação e não pelo protocolo TCP. Isso levou a uma reorganização do TCP original em dois protocolos: o simples IP que provia apenas o endereçamento e o roteamento dos pacotes individuais e o TCP em separado, que se preocupava com o controle do fluxo e a recuperação de pacotes perdidos.
+
+Para as aplicações que não queriam os serviços de TCP, uma alternativa chamada UDP (User Datagram Protocol) foi adicionada para prover acesso direto ao serviço básico de IP.
+
+Funcionamento[editar | editar código-fonte]
+O UDP dá às aplicações acesso direto ao serviço de entrega de datagramas, como o serviço de entrega que o IP dá. O UDP é pouco confiável, sendo um protocolo não orientado para conexão. Não existem técnicas no protocolo para confirmar que os dados chegaram ao destino corretamente. O UDP usa número de porta de origem e de destino de 16 bits.
+
+O UDP é um acrônimo do termo inglês User Datagram Protocol que significa protocolo de datagramas de utilizador (ou usuário). O UDP faz a entrega de mensagens independentes, designadas por datagramas, entre aplicações ou processos, em sistemas host. A entrega pode ser feita fora de ordem e datagramas podem ser perdidos. A integridade dos dados pode ser conferida por um "checksum" (um campo no cabeçalho de checagem por soma) baseado em complemento de um, de 16 bits.
+
+Os pontos de acesso do UDP são geralmente designados por "Portas de protocolo" ou "portas" ou até "portos", em que cada unidade de transmissão de dados UDP identifica o endereço IP e o número de porta do destino e da fonte da mensagem, os números podendo ser diferentes em ambos os casos.
+
+A diferença básica entre o UDP e o TCP é o fato de que o TCP é um protocolo orientado à conexão e, portanto, inclui vários mecanismos para iniciar, manter e encerrar a comunicação, negociar tamanhos de pacotes, detectar e corrigir erros, evitar congestionamento do fluxo e permitir a retransmissão de pacotes corrompidos, independente da qualidade do meio físicos.
+
+O UDP, por sua vez, é feito para transmitir dados pouco sensíveis, como fluxos de áudio e vídeo, ou para comunicação sem conexão como é o caso da negociação DHCP ou tradução de endereços por DNS. Os dados são transmitidos apenas uma vez, incluindo apenas um frágil, e opcional, sistema de CRC de 16 bits. Os pacotes que chegam corrompidos são simplesmente descartados, sem que o emissor sequer saiba do problema. Por outro lado, a ausência de estruturas de controle complexas garante ao UDP alta eficiência, já que cada pacote é composto praticamente somente por dados.
+
+Cabeçalho UDP[editar | editar código-fonte]
+O cabeçalho UDP é extremamente simples, contendo apenas os números de porta, comprimento da mensagem e o checksum. O cabeçalho dos datagramas UDP é colocado a seguir ao cabeçalho IP.
+
+Porta origem	Porta destino	Comprimento da mensagem	Checksum
+Os campos em laranja são opcionais. A porta de origem geralmente especifica a porta desejada de resposta, mas pode ser omitida. Isso tipicamente ocorre em comunicações broadcast ou mensagens de pânico, que notificam sobre a queda de um equipamento.
+
+Seleção do número de portas no UDP[editar | editar código-fonte]
+Os computadores que pretendem estabelecer uma comunicação devem definir um número de porta. Para o servidor (Processo), e aguarda pela chegada de mensagens, datagramas, o cliente seleciona uma porta local, para recebimento de datagramas e envia datagramas para a porta selecionada para o processo do servidor. Muitos serviços conhecidos usam números de portas reservados, por exemplo: 161 para o Protocolo SNMP.
+
+Vantagens do uso do UDP[editar | editar código-fonte]
+O UDP é uma escolha adequada para fluxos de dados em tempo real, especialmente aqueles que admitem perda ou corrompimento de parte de seu conteúdo, tais como vídeos ou voz (VoIP). Aplicações sensíveis a atrasos na rede, mas poucos sensíveis a perdas de pacotes, como jogos de computadores, também podem se utilizar do UDP. As garantias de TCP envolvem retransmissão e espera de dados, como consequência, intensificam os efeitos de uma alta latência de rede.
+O UDP também suporta broadcasting e multicasting. Caso esses recursos sejam necessários, o UDP deverá necessariamente ser utilizado. Algum tratamento de erro pode ser adicionado, mas geralmente aplicações multicast também admitem perda de parte dos pacotes ou fazem retransmissões constantes (tal como o ocorre no protocolo DHCP).
+O UDP não perde tempo com criação ou destruição de conexões. Durante uma conexão, o UDP troca apenas 2 pacotes, enquanto no TCP esse número é superior a 10. Por isso, aplicações que encaixam num modelo de pergunta-resposta também são fortes candidatas a usar UDP. Entretanto, pode ser necessário implementar algoritmos de timeouts, acks e, no mínimo, retransmissão. Nesse caso, vale lembrar que se a troca de mensagens for muito intensa, o protocolo TCP pode voltar a ser vantajoso, já que seu custo de conexão será amortizado.
+Embora o processamento dos pacotes UDP seja realmente mais rápido, quando as garantias de confiabilidade e ordenação são necessárias, é pouco provável que uma implementação em UDP obterá resultados melhores do que o uso direto do TCP. Em primeiro lugar, corre-se o risco de que uma implementação ingênua feita em UDP seja menos eficiente do que os algoritmos já testados e otimizados presentes no TCP. Em segundo lugar, boa parte do protocolo TCP, nos principais sistemas operacionais, opera em modo núcleo, tendo portanto uma execução mais privilegiada do que um protocolo de aplicação teria. Finalmente, é válido lembrar que muitas placas de rede já possuem o TCP programado em seu firmware o que permite, por exemplo, o cálculo de checksum por hardware. Por isso, o protocolo UDP não deveria ser utilizado para fluxos de bytes confiáveis, tais como a transferência de arquivos. Como exemplo, podemos citar o protocolo TFTP, exceção a essa regra, que foi feito para redes locais, de alta confiabilidade. Na internet, seu desempenho é muito inferior ao sua versão confiável, o protocolo FTP.
+
+User Datagram Protocol
+Origem: Wikipédia, a enciclopédia livre.
+Saltar para a navegaçãoSaltar para a pesquisa
+Pilha de protocolos TCP/IP
+Camada de Aplicação
+BGP DHCP DNS FTP HTTP IMAP LDAP MGCP NNTP NTP POP ONC/RPC RIP SIP SMTP SNMP SSH Telnet TLS/SSL XMPP outros...
+Camada de Transporte
+TCP UDP RTP DCCP SCTP RSVP outros...
+Camada de Rede
+OSPF IP IPv4 IPv6 ICMP ICMPv6 ECN IGMP IPsec
+Camada de Ligação de Dados
+NDP ARP túneis... L2TP PPP MAC Ethernet DSL RDIS FDDI outros...
+vde
+O User Datagram Protocol (UDP) é um protocolo simples da camada de transporte. Ele é descrito na RFC 768 e permite que a aplicação envie um datagrama encapsulado num pacote IPv4 ou IPv6 a um destino, porém sem qualquer tipo de garantia que o pacote chegue corretamente (ou de qualquer modo).[1]
+
+O protocolo UDP não é confiável. Caso garantias sejam necessárias, é preciso implementar uma série de estruturas de controle, tais como timeouts, retransmissões, acknowledgements, controle de fluxo, etc. Cada datagrama UDP tem um tamanho e pode ser considerado como um registro indivisível, diferentemente do TCP, que é um protocolo orientado a fluxos de bytes sem início e sem fim.[1]Também dizemos que o UDP é um serviço sem conexão, pois não há necessidade de manter um relacionamento longo entre cliente e o servidor. Assim, um cliente UDP pode criar um socket, enviar um datagrama para um servidor e imediatamente enviar outro datagrama com o mesmo socket para um servidor diferente. Da mesma forma, um servidor poderia ler datagramas vindos de diversos clientes, usando um único socket.
+
+O UDP também fornece os serviços de broadcast e multicast, permitindo que um único cliente envie pacotes para vários outros na rede.
+
+
+Índice
+1	História
+2	Funcionamento
+3	Cabeçalho UDP
+4	Seleção do número de portas no UDP
+5	Vantagens do uso do UDP
+6	Notas e Referências
+7	Ligações externas
+História[editar | editar código-fonte]
+O trabalho original de Vint Cerf e Bob Kahn sobre a Internet descreveu o protocolo TCP, que provia todo o transporte e serviços de encaminhamento na Internet. Kahn queria que o protocolo suportasse uma série de serviços de transporte, desde a entrega sequenciada de dados totalmente confiável (modelo de circuito virtual) até o serviço de datagrama, onde a aplicação fazia uso direto do serviço básico de rede, o que poderia implicar em pacotes ocasionalmente perdidos, corrompidos ou reordenados.
+
+Entretanto, o esforço inicial para implementar TCP resultou numa versão que somente permitiu circuitos virtuais. O modelo funcionou bem para transferência de arquivos e aplicações de logins remotos, mas alguns dos trabalhos em aplicações avançadas como pacotes de voz mostraram que, em alguns casos, a perda de pacotes deveria ser corrigida pela aplicação e não pelo protocolo TCP. Isso levou a uma reorganização do TCP original em dois protocolos: o simples IP que provia apenas o endereçamento e o roteamento dos pacotes individuais e o TCP em separado, que se preocupava com o controle do fluxo e a recuperação de pacotes perdidos.
+
+Para as aplicações que não queriam os serviços de TCP, uma alternativa chamada UDP (User Datagram Protocol) foi adicionada para prover acesso direto ao serviço básico de IP.
+
+Funcionamento[editar | editar código-fonte]
+O UDP dá às aplicações acesso direto ao serviço de entrega de datagramas, como o serviço de entrega que o IP dá. O UDP é pouco confiável, sendo um protocolo não orientado para conexão. Não existem técnicas no protocolo para confirmar que os dados chegaram ao destino corretamente. O UDP usa número de porta de origem e de destino de 16 bits.
+
+O UDP é um acrônimo do termo inglês User Datagram Protocol que significa protocolo de datagramas de utilizador (ou usuário). O UDP faz a entrega de mensagens independentes, designadas por datagramas, entre aplicações ou processos, em sistemas host. A entrega pode ser feita fora de ordem e datagramas podem ser perdidos. A integridade dos dados pode ser conferida por um "checksum" (um campo no cabeçalho de checagem por soma) baseado em complemento de um, de 16 bits.
+
+Os pontos de acesso do UDP são geralmente designados por "Portas de protocolo" ou "portas" ou até "portos", em que cada unidade de transmissão de dados UDP identifica o endereço IP e o número de porta do destino e da fonte da mensagem, os números podendo ser diferentes em ambos os casos.
+
+A diferença básica entre o UDP e o TCP é o fato de que o TCP é um protocolo orientado à conexão e, portanto, inclui vários mecanismos para iniciar, manter e encerrar a comunicação, negociar tamanhos de pacotes, detectar e corrigir erros, evitar congestionamento do fluxo e permitir a retransmissão de pacotes corrompidos, independente da qualidade do meio físicos.
+
+O UDP, por sua vez, é feito para transmitir dados pouco sensíveis, como fluxos de áudio e vídeo, ou para comunicação sem conexão como é o caso da negociação DHCP ou tradução de endereços por DNS. Os dados são transmitidos apenas uma vez, incluindo apenas um frágil, e opcional, sistema de CRC de 16 bits. Os pacotes que chegam corrompidos são simplesmente descartados, sem que o emissor sequer saiba do problema. Por outro lado, a ausência de estruturas de controle complexas garante ao UDP alta eficiência, já que cada pacote é composto praticamente somente por dados.
+
+Cabeçalho UDP[editar | editar código-fonte]
+O cabeçalho UDP é extremamente simples, contendo apenas os números de porta, comprimento da mensagem e o checksum. O cabeçalho dos datagramas UDP é colocado a seguir ao cabeçalho IP.
+
+Porta origem	Porta destino	Comprimento da mensagem	Checksum
+Os campos em laranja são opcionais. A porta de origem geralmente especifica a porta desejada de resposta, mas pode ser omitida. Isso tipicamente ocorre em comunicações broadcast ou mensagens de pânico, que notificam sobre a queda de um equipamento.
+
+Seleção do número de portas no UDP[editar | editar código-fonte]
+Os computadores que pretendem estabelecer uma comunicação devem definir um número de porta. Para o servidor (Processo), e aguarda pela chegada de mensagens, datagramas, o cliente seleciona uma porta local, para recebimento de datagramas e envia datagramas para a porta selecionada para o processo do servidor. Muitos serviços conhecidos usam números de portas reservados, por exemplo: 161 para o Protocolo SNMP.
+
+Vantagens do uso do UDP[editar | editar código-fonte]
+O UDP é uma escolha adequada para fluxos de dados em tempo real, especialmente aqueles que admitem perda ou corrompimento de parte de seu conteúdo, tais como vídeos ou voz (VoIP). Aplicações sensíveis a atrasos na rede, mas poucos sensíveis a perdas de pacotes, como jogos de computadores, também podem se utilizar do UDP. As garantias de TCP envolvem retransmissão e espera de dados, como consequência, intensificam os efeitos de uma alta latência de rede.
+O UDP também suporta broadcasting e multicasting. Caso esses recursos sejam necessários, o UDP deverá necessariamente ser utilizado. Algum tratamento de erro pode ser adicionado, mas geralmente aplicações multicast também admitem perda de parte dos pacotes ou fazem retransmissões constantes (tal como o ocorre no protocolo DHCP).
+O UDP não perde tempo com criação ou destruição de conexões. Durante uma conexão, o UDP troca apenas 2 pacotes, enquanto no TCP esse número é superior a 10. Por isso, aplicações que encaixam num modelo de pergunta-resposta também são fortes candidatas a usar UDP. Entretanto, pode ser necessário implementar algoritmos de timeouts, acks e, no mínimo, retransmissão. Nesse caso, vale lembrar que se a troca de mensagens for muito intensa, o protocolo TCP pode voltar a ser vantajoso, já que seu custo de conexão será amortizado.
+Embora o processamento dos pacotes UDP seja realmente mais rápido, quando as garantias de confiabilidade e ordenação são necessárias, é pouco provável que uma implementação em UDP obterá resultados melhores do que o uso direto do TCP. Em primeiro lugar, corre-se o risco de que uma implementação ingênua feita em UDP seja menos eficiente do que os algoritmos já testados e otimizados presentes no TCP. Em segundo lugar, boa parte do protocolo TCP, nos principais sistemas operacionais, opera em modo núcleo, tendo portanto uma execução mais privilegiada do que um protocolo de aplicação teria. Finalmente, é válido lembrar que muitas placas de rede já possuem o TCP programado em seu firmware o que permite, por exemplo, o cálculo de checksum por hardware. Por isso, o protocolo UDP não deveria ser utilizado para fluxos de bytes confiáveis, tais como a transferência de arquivos. Como exemplo, podemos citar o protocolo TFTP, exceção a essa regra, que foi feito para redes locais, de alta confiabilidade. Na internet, seu desempenho é muito inferior ao sua versão confiável, o protocolo FTP.
+
+User Datagram Protocol
+Origem: Wikipédia, a enciclopédia livre.
+Saltar para a navegaçãoSaltar para a pesquisa
+Pilha de protocolos TCP/IP
+Camada de Aplicação
+BGP DHCP DNS FTP HTTP IMAP LDAP MGCP NNTP NTP POP ONC/RPC RIP SIP SMTP SNMP SSH Telnet TLS/SSL XMPP outros...
+Camada de Transporte
+TCP UDP RTP DCCP SCTP RSVP outros...
+Camada de Rede
+OSPF IP IPv4 IPv6 ICMP ICMPv6 ECN IGMP IPsec
+Camada de Ligação de Dados
+NDP ARP túneis... L2TP PPP MAC Ethernet DSL RDIS FDDI outros...
+vde
+O User Datagram Protocol (UDP) é um protocolo simples da camada de transporte. Ele é descrito na RFC 768 e permite que a aplicação envie um datagrama encapsulado num pacote IPv4 ou IPv6 a um destino, porém sem qualquer tipo de garantia que o pacote chegue corretamente (ou de qualquer modo).[1]
+
+O protocolo UDP não é confiável. Caso garantias sejam necessárias, é preciso implementar uma série de estruturas de controle, tais como timeouts, retransmissões, acknowledgements, controle de fluxo, etc. Cada datagrama UDP tem um tamanho e pode ser considerado como um registro indivisível, diferentemente do TCP, que é um protocolo orientado a fluxos de bytes sem início e sem fim.[1]Também dizemos que o UDP é um serviço sem conexão, pois não há necessidade de manter um relacionamento longo entre cliente e o servidor. Assim, um cliente UDP pode criar um socket, enviar um datagrama para um servidor e imediatamente enviar outro datagrama com o mesmo socket para um servidor diferente. Da mesma forma, um servidor poderia ler datagramas vindos de diversos clientes, usando um único socket.
+
+O UDP também fornece os serviços de broadcast e multicast, permitindo que um único cliente envie pacotes para vários outros na rede.
+
+
+Índice
+1	História
+2	Funcionamento
+3	Cabeçalho UDP
+4	Seleção do número de portas no UDP
+5	Vantagens do uso do UDP
+6	Notas e Referências
+7	Ligações externas
+História[editar | editar código-fonte]
+O trabalho original de Vint Cerf e Bob Kahn sobre a Internet descreveu o protocolo TCP, que provia todo o transporte e serviços de encaminhamento na Internet. Kahn queria que o protocolo suportasse uma série de serviços de transporte, desde a entrega sequenciada de dados totalmente confiável (modelo de circuito virtual) até o serviço de datagrama, onde a aplicação fazia uso direto do serviço básico de rede, o que poderia implicar em pacotes ocasionalmente perdidos, corrompidos ou reordenados.
+
+Entretanto, o esforço inicial para implementar TCP resultou numa versão que somente permitiu circuitos virtuais. O modelo funcionou bem para transferência de arquivos e aplicações de logins remotos, mas alguns dos trabalhos em aplicações avançadas como pacotes de voz mostraram que, em alguns casos, a perda de pacotes deveria ser corrigida pela aplicação e não pelo protocolo TCP. Isso levou a uma reorganização do TCP original em dois protocolos: o simples IP que provia apenas o endereçamento e o roteamento dos pacotes individuais e o TCP em separado, que se preocupava com o controle do fluxo e a recuperação de pacotes perdidos.
+
+Para as aplicações que não queriam os serviços de TCP, uma alternativa chamada UDP (User Datagram Protocol) foi adicionada para prover acesso direto ao serviço básico de IP.
+
+Funcionamento[editar | editar código-fonte]
+O UDP dá às aplicações acesso direto ao serviço de entrega de datagramas, como o serviço de entrega que o IP dá. O UDP é pouco confiável, sendo um protocolo não orientado para conexão. Não existem técnicas no protocolo para confirmar que os dados chegaram ao destino corretamente. O UDP usa número de porta de origem e de destino de 16 bits.
+
+O UDP é um acrônimo do termo inglês User Datagram Protocol que significa protocolo de datagramas de utilizador (ou usuário). O UDP faz a entrega de mensagens independentes, designadas por datagramas, entre aplicações ou processos, em sistemas host. A entrega pode ser feita fora de ordem e datagramas podem ser perdidos. A integridade dos dados pode ser conferida por um "checksum" (um campo no cabeçalho de checagem por soma) baseado em complemento de um, de 16 bits.
+
+Os pontos de acesso do UDP são geralmente designados por "Portas de protocolo" ou "portas" ou até "portos", em que cada unidade de transmissão de dados UDP identifica o endereço IP e o número de porta do destino e da fonte da mensagem, os números podendo ser diferentes em ambos os casos.
+
+A diferença básica entre o UDP e o TCP é o fato de que o TCP é um protocolo orientado à conexão e, portanto, inclui vários mecanismos para iniciar, manter e encerrar a comunicação, negociar tamanhos de pacotes, detectar e corrigir erros, evitar congestionamento do fluxo e permitir a retransmissão de pacotes corrompidos, independente da qualidade do meio físicos.
+
+O UDP, por sua vez, é feito para transmitir dados pouco sensíveis, como fluxos de áudio e vídeo, ou para comunicação sem conexão como é o caso da negociação DHCP ou tradução de endereços por DNS. Os dados são transmitidos apenas uma vez, incluindo apenas um frágil, e opcional, sistema de CRC de 16 bits. Os pacotes que chegam corrompidos são simplesmente descartados, sem que o emissor sequer saiba do problema. Por outro lado, a ausência de estruturas de controle complexas garante ao UDP alta eficiência, já que cada pacote é composto praticamente somente por dados.
+
+Cabeçalho UDP[editar | editar código-fonte]
+O cabeçalho UDP é extremamente simples, contendo apenas os números de porta, comprimento da mensagem e o checksum. O cabeçalho dos datagramas UDP é colocado a seguir ao cabeçalho IP.
+
+Porta origem	Porta destino	Comprimento da mensagem	Checksum
+Os campos em laranja são opcionais. A porta de origem geralmente especifica a porta desejada de resposta, mas pode ser omitida. Isso tipicamente ocorre em comunicações broadcast ou mensagens de pânico, que notificam sobre a queda de um equipamento.
+
+Seleção do número de portas no UDP[editar | editar código-fonte]
+Os computadores que pretendem estabelecer uma comunicação devem definir um número de porta. Para o servidor (Processo), e aguarda pela chegada de mensagens, datagramas, o cliente seleciona uma porta local, para recebimento de datagramas e envia datagramas para a porta selecionada para o processo do servidor. Muitos serviços conhecidos usam números de portas reservados, por exemplo: 161 para o Protocolo SNMP.
+
+Vantagens do uso do UDP[editar | editar código-fonte]
+O UDP é uma escolha adequada para fluxos de dados em tempo real, especialmente aqueles que admitem perda ou corrompimento de parte de seu conteúdo, tais como vídeos ou voz (VoIP). Aplicações sensíveis a atrasos na rede, mas poucos sensíveis a perdas de pacotes, como jogos de computadores, também podem se utilizar do UDP. As garantias de TCP envolvem retransmissão e espera de dados, como consequência, intensificam os efeitos de uma alta latência de rede.
+O UDP também suporta broadcasting e multicasting. Caso esses recursos sejam necessários, o UDP deverá necessariamente ser utilizado. Algum tratamento de erro pode ser adicionado, mas geralmente aplicações multicast também admitem perda de parte dos pacotes ou fazem retransmissões constantes (tal como o ocorre no protocolo DHCP).
+O UDP não perde tempo com criação ou destruição de conexões. Durante uma conexão, o UDP troca apenas 2 pacotes, enquanto no TCP esse número é superior a 10. Por isso, aplicações que encaixam num modelo de pergunta-resposta também são fortes candidatas a usar UDP. Entretanto, pode ser necessário implementar algoritmos de timeouts, acks e, no mínimo, retransmissão. Nesse caso, vale lembrar que se a troca de mensagens for muito intensa, o protocolo TCP pode voltar a ser vantajoso, já que seu custo de conexão será amortizado.
+Embora o processamento dos pacotes UDP seja realmente mais rápido, quando as garantias de confiabilidade e ordenação são necessárias, é pouco provável que uma implementação em UDP obterá resultados melhores do que o uso direto do TCP. Em primeiro lugar, corre-se o risco de que uma implementação ingênua feita em UDP seja menos eficiente do que os algoritmos já testados e otimizados presentes no TCP. Em segundo lugar, boa parte do protocolo TCP, nos principais sistemas operacionais, opera em modo núcleo, tendo portanto uma execução mais privilegiada do que um protocolo de aplicação teria. Finalmente, é válido lembrar que muitas placas de rede já possuem o TCP programado em seu firmware o que permite, por exemplo, o cálculo de checksum por hardware. Por isso, o protocolo UDP não deveria ser utilizado para fluxos de bytes confiáveis, tais como a transferência de arquivos. Como exemplo, podemos citar o protocolo TFTP, exceção a essa regra, que foi feito para redes locais, de alta confiabilidade. Na internet, seu desempenho é muito inferior ao sua versão confiável, o protocolo FTP.
+
+User Datagram Protocol
+Origem: Wikipédia, a enciclopédia livre.
+Saltar para a navegaçãoSaltar para a pesquisa
+Pilha de protocolos TCP/IP
+Camada de Aplicação
+BGP DHCP DNS FTP HTTP IMAP LDAP MGCP NNTP NTP POP ONC/RPC RIP SIP SMTP SNMP SSH Telnet TLS/SSL XMPP outros...
+Camada de Transporte
+TCP UDP RTP DCCP SCTP RSVP outros...
+Camada de Rede
+OSPF IP IPv4 IPv6 ICMP ICMPv6 ECN IGMP IPsec
+Camada de Ligação de Dados
+NDP ARP túneis... L2TP PPP MAC Ethernet DSL RDIS FDDI outros...
+vde
+O User Datagram Protocol (UDP) é um protocolo simples da camada de transporte. Ele é descrito na RFC 768 e permite que a aplicação envie um datagrama encapsulado num pacote IPv4 ou IPv6 a um destino, porém sem qualquer tipo de garantia que o pacote chegue corretamente (ou de qualquer modo).[1]
+
+O protocolo UDP não é confiável. Caso garantias sejam necessárias, é preciso implementar uma série de estruturas de controle, tais como timeouts, retransmissões, acknowledgements, controle de fluxo, etc. Cada datagrama UDP tem um tamanho e pode ser considerado como um registro indivisível, diferentemente do TCP, que é um protocolo orientado a fluxos de bytes sem início e sem fim.[1]Também dizemos que o UDP é um serviço sem conexão, pois não há necessidade de manter um relacionamento longo entre cliente e o servidor. Assim, um cliente UDP pode criar um socket, enviar um datagrama para um servidor e imediatamente enviar outro datagrama com o mesmo socket para um servidor diferente. Da mesma forma, um servidor poderia ler datagramas vindos de diversos clientes, usando um único socket.
+
+O UDP também fornece os serviços de broadcast e multicast, permitindo que um único cliente envie pacotes para vários outros na rede.
+
+
+Índice
+1	História
+2	Funcionamento
+3	Cabeçalho UDP
+4	Seleção do número de portas no UDP
+5	Vantagens do uso do UDP
+6	Notas e Referências
+7	Ligações externas
+História[editar | editar código-fonte]
+O trabalho original de Vint Cerf e Bob Kahn sobre a Internet descreveu o protocolo TCP, que provia todo o transporte e serviços de encaminhamento na Internet. Kahn queria que o protocolo suportasse uma série de serviços de transporte, desde a entrega sequenciada de dados totalmente confiável (modelo de circuito virtual) até o serviço de datagrama, onde a aplicação fazia uso direto do serviço básico de rede, o que poderia implicar em pacotes ocasionalmente perdidos, corrompidos ou reordenados.
+
+Entretanto, o esforço inicial para implementar TCP resultou numa versão que somente permitiu circuitos virtuais. O modelo funcionou bem para transferência de arquivos e aplicações de logins remotos, mas alguns dos trabalhos em aplicações avançadas como pacotes de voz mostraram que, em alguns casos, a perda de pacotes deveria ser corrigida pela aplicação e não pelo protocolo TCP. Isso levou a uma reorganização do TCP original em dois protocolos: o simples IP que provia apenas o endereçamento e o roteamento dos pacotes individuais e o TCP em separado, que se preocupava com o controle do fluxo e a recuperação de pacotes perdidos.
+
+Para as aplicações que não queriam os serviços de TCP, uma alternativa chamada UDP (User Datagram Protocol) foi adicionada para prover acesso direto ao serviço básico de IP.
+
+Funcionamento[editar | editar código-fonte]
+O UDP dá às aplicações acesso direto ao serviço de entrega de datagramas, como o serviço de entrega que o IP dá. O UDP é pouco confiável, sendo um protocolo não orientado para conexão. Não existem técnicas no protocolo para confirmar que os dados chegaram ao destino corretamente. O UDP usa número de porta de origem e de destino de 16 bits.
+
+O UDP é um acrônimo do termo inglês User Datagram Protocol que significa protocolo de datagramas de utilizador (ou usuário). O UDP faz a entrega de mensagens independentes, designadas por datagramas, entre aplicações ou processos, em sistemas host. A entrega pode ser feita fora de ordem e datagramas podem ser perdidos. A integridade dos dados pode ser conferida por um "checksum" (um campo no cabeçalho de checagem por soma) baseado em complemento de um, de 16 bits.
+
+Os pontos de acesso do UDP são geralmente designados por "Portas de protocolo" ou "portas" ou até "portos", em que cada unidade de transmissão de dados UDP identifica o endereço IP e o número de porta do destino e da fonte da mensagem, os números podendo ser diferentes em ambos os casos.
+
+A diferença básica entre o UDP e o TCP é o fato de que o TCP é um protocolo orientado à conexão e, portanto, inclui vários mecanismos para iniciar, manter e encerrar a comunicação, negociar tamanhos de pacotes, detectar e corrigir erros, evitar congestionamento do fluxo e permitir a retransmissão de pacotes corrompidos, independente da qualidade do meio físicos.
+
+O UDP, por sua vez, é feito para transmitir dados pouco sensíveis, como fluxos de áudio e vídeo, ou para comunicação sem conexão como é o caso da negociação DHCP ou tradução de endereços por DNS. Os dados são transmitidos apenas uma vez, incluindo apenas um frágil, e opcional, sistema de CRC de 16 bits. Os pacotes que chegam corrompidos são simplesmente descartados, sem que o emissor sequer saiba do problema. Por outro lado, a ausência de estruturas de controle complexas garante ao UDP alta eficiência, já que cada pacote é composto praticamente somente por dados.
+
+Cabeçalho UDP[editar | editar código-fonte]
+O cabeçalho UDP é extremamente simples, contendo apenas os números de porta, comprimento da mensagem e o checksum. O cabeçalho dos datagramas UDP é colocado a seguir ao cabeçalho IP.
+
+Porta origem	Porta destino	Comprimento da mensagem	Checksum
+Os campos em laranja são opcionais. A porta de origem geralmente especifica a porta desejada de resposta, mas pode ser omitida. Isso tipicamente ocorre em comunicações broadcast ou mensagens de pânico, que notificam sobre a queda de um equipamento.
+
+Seleção do número de portas no UDP[editar | editar código-fonte]
+Os computadores que pretendem estabelecer uma comunicação devem definir um número de porta. Para o servidor (Processo), e aguarda pela chegada de mensagens, datagramas, o cliente seleciona uma porta local, para recebimento de datagramas e envia datagramas para a porta selecionada para o processo do servidor. Muitos serviços conhecidos usam números de portas reservados, por exemplo: 161 para o Protocolo SNMP.
+
+Vantagens do uso do UDP[editar | editar código-fonte]
+O UDP é uma escolha adequada para fluxos de dados em tempo real, especialmente aqueles que admitem perda ou corrompimento de parte de seu conteúdo, tais como vídeos ou voz (VoIP). Aplicações sensíveis a atrasos na rede, mas poucos sensíveis a perdas de pacotes, como jogos de computadores, também podem se utilizar do UDP. As garantias de TCP envolvem retransmissão e espera de dados, como consequência, intensificam os efeitos de uma alta latência de rede.
+O UDP também suporta broadcasting e multicasting. Caso esses recursos sejam necessários, o UDP deverá necessariamente ser utilizado. Algum tratamento de erro pode ser adicionado, mas geralmente aplicações multicast também admitem perda de parte dos pacotes ou fazem retransmissões constantes (tal como o ocorre no protocolo DHCP).
+O UDP não perde tempo com criação ou destruição de conexões. Durante uma conexão, o UDP troca apenas 2 pacotes, enquanto no TCP esse número é superior a 10. Por isso, aplicações que encaixam num modelo de pergunta-resposta também são fortes candidatas a usar UDP. Entretanto, pode ser necessário implementar algoritmos de timeouts, acks e, no mínimo, retransmissão. Nesse caso, vale lembrar que se a troca de mensagens for muito intensa, o protocolo TCP pode voltar a ser vantajoso, já que seu custo de conexão será amortizado.
+Embora o processamento dos pacotes UDP seja realmente mais rápido, quando as garantias de confiabilidade e ordenação são necessárias, é pouco provável que uma implementação em UDP obterá resultados melhores do que o uso direto do TCP. Em primeiro lugar, corre-se o risco de que uma implementação ingênua feita em UDP seja menos eficiente do que os algoritmos já testados e otimizados presentes no TCP. Em segundo lugar, boa parte do protocolo TCP, nos principais sistemas operacionais, opera em modo núcleo, tendo portanto uma execução mais privilegiada do que um protocolo de aplicação teria. Finalmente, é válido lembrar que muitas placas de rede já possuem o TCP programado em seu firmware o que permite, por exemplo, o cálculo de checksum por hardware. Por isso, o protocolo UDP não deveria ser utilizado para fluxos de bytes confiáveis, tais como a transferência de arquivos. Como exemplo, podemos citar o protocolo TFTP, exceção a essa regra, que foi feito para redes locais, de alta confiabilidade. Na internet, seu desempenho é muito inferior ao sua versão confiável, o protocolo FTP.
+
+User Datagram Protocol
+Origem: Wikipédia, a enciclopédia livre.
+Saltar para a navegaçãoSaltar para a pesquisa
+Pilha de protocolos TCP/IP
+Camada de Aplicação
+BGP DHCP DNS FTP HTTP IMAP LDAP MGCP NNTP NTP POP ONC/RPC RIP SIP SMTP SNMP SSH Telnet TLS/SSL XMPP outros...
+Camada de Transporte
+TCP UDP RTP DCCP SCTP RSVP outros...
+Camada de Rede
+OSPF IP IPv4 IPv6 ICMP ICMPv6 ECN IGMP IPsec
+Camada de Ligação de Dados
+NDP ARP túneis... L2TP PPP MAC Ethernet DSL RDIS FDDI outros...
+vde
+O User Datagram Protocol (UDP) é um protocolo simples da camada de transporte. Ele é descrito na RFC 768 e permite que a aplicação envie um datagrama encapsulado num pacote IPv4 ou IPv6 a um destino, porém sem qualquer tipo de garantia que o pacote chegue corretamente (ou de qualquer modo).[1]
+
+O protocolo UDP não é confiável. Caso garantias sejam necessárias, é preciso implementar uma série de estruturas de controle, tais como timeouts, retransmissões, acknowledgements, controle de fluxo, etc. Cada datagrama UDP tem um tamanho e pode ser considerado como um registro indivisível, diferentemente do TCP, que é um protocolo orientado a fluxos de bytes sem início e sem fim.[1]Também dizemos que o UDP é um serviço sem conexão, pois não há necessidade de manter um relacionamento longo entre cliente e o servidor. Assim, um cliente UDP pode criar um socket, enviar um datagrama para um servidor e imediatamente enviar outro datagrama com o mesmo socket para um servidor diferente. Da mesma forma, um servidor poderia ler datagramas vindos de diversos clientes, usando um único socket.
+
+O UDP também fornece os serviços de broadcast e multicast, permitindo que um único cliente envie pacotes para vários outros na rede.
+
+
+Índice
+1	História
+2	Funcionamento
+3	Cabeçalho UDP
+4	Seleção do número de portas no UDP
+5	Vantagens do uso do UDP
+6	Notas e Referências
+7	Ligações externas
+História[editar | editar código-fonte]
+O trabalho original de Vint Cerf e Bob Kahn sobre a Internet descreveu o protocolo TCP, que provia todo o transporte e serviços de encaminhamento na Internet. Kahn queria que o protocolo suportasse uma série de serviços de transporte, desde a entrega sequenciada de dados totalmente confiável (modelo de circuito virtual) até o serviço de datagrama, onde a aplicação fazia uso direto do serviço básico de rede, o que poderia implicar em pacotes ocasionalmente perdidos, corrompidos ou reordenados.
+
+Entretanto, o esforço inicial para implementar TCP resultou numa versão que somente permitiu circuitos virtuais. O modelo funcionou bem para transferência de arquivos e aplicações de logins remotos, mas alguns dos trabalhos em aplicações avançadas como pacotes de voz mostraram que, em alguns casos, a perda de pacotes deveria ser corrigida pela aplicação e não pelo protocolo TCP. Isso levou a uma reorganização do TCP original em dois protocolos: o simples IP que provia apenas o endereçamento e o roteamento dos pacotes individuais e o TCP em separado, que se preocupava com o controle do fluxo e a recuperação de pacotes perdidos.
+
+Para as aplicações que não queriam os serviços de TCP, uma alternativa chamada UDP (User Datagram Protocol) foi adicionada para prover acesso direto ao serviço básico de IP.
+
+Funcionamento[editar | editar código-fonte]
+O UDP dá às aplicações acesso direto ao serviço de entrega de datagramas, como o serviço de entrega que o IP dá. O UDP é pouco confiável, sendo um protocolo não orientado para conexão. Não existem técnicas no protocolo para confirmar que os dados chegaram ao destino corretamente. O UDP usa número de porta de origem e de destino de 16 bits.
+
+O UDP é um acrônimo do termo inglês User Datagram Protocol que significa protocolo de datagramas de utilizador (ou usuário). O UDP faz a entrega de mensagens independentes, designadas por datagramas, entre aplicações ou processos, em sistemas host. A entrega pode ser feita fora de ordem e datagramas podem ser perdidos. A integridade dos dados pode ser conferida por um "checksum" (um campo no cabeçalho de checagem por soma) baseado em complemento de um, de 16 bits.
+
+Os pontos de acesso do UDP são geralmente designados por "Portas de protocolo" ou "portas" ou até "portos", em que cada unidade de transmissão de dados UDP identifica o endereço IP e o número de porta do destino e da fonte da mensagem, os números podendo ser diferentes em ambos os casos.
+
+A diferença básica entre o UDP e o TCP é o fato de que o TCP é um protocolo orientado à conexão e, portanto, inclui vários mecanismos para iniciar, manter e encerrar a comunicação, negociar tamanhos de pacotes, detectar e corrigir erros, evitar congestionamento do fluxo e permitir a retransmissão de pacotes corrompidos, independente da qualidade do meio físicos.
+
+O UDP, por sua vez, é feito para transmitir dados pouco sensíveis, como fluxos de áudio e vídeo, ou para comunicação sem conexão como é o caso da negociação DHCP ou tradução de endereços por DNS. Os dados são transmitidos apenas uma vez, incluindo apenas um frágil, e opcional, sistema de CRC de 16 bits. Os pacotes que chegam corrompidos são simplesmente descartados, sem que o emissor sequer saiba do problema. Por outro lado, a ausência de estruturas de controle complexas garante ao UDP alta eficiência, já que cada pacote é composto praticamente somente por dados.
+
+Cabeçalho UDP[editar | editar código-fonte]
+O cabeçalho UDP é extremamente simples, contendo apenas os números de porta, comprimento da mensagem e o checksum. O cabeçalho dos datagramas UDP é colocado a seguir ao cabeçalho IP.
+
+Porta origem	Porta destino	Comprimento da mensagem	Checksum
+Os campos em laranja são opcionais. A porta de origem geralmente especifica a porta desejada de resposta, mas pode ser omitida. Isso tipicamente ocorre em comunicações broadcast ou mensagens de pânico, que notificam sobre a queda de um equipamento.
+
+Seleção do número de portas no UDP[editar | editar código-fonte]
+Os computadores que pretendem estabelecer uma comunicação devem definir um número de porta. Para o servidor (Processo), e aguarda pela chegada de mensagens, datagramas, o cliente seleciona uma porta local, para recebimento de datagramas e envia datagramas para a porta selecionada para o processo do servidor. Muitos serviços conhecidos usam números de portas reservados, por exemplo: 161 para o Protocolo SNMP.
+
+Vantagens do uso do UDP[editar | editar código-fonte]
+O UDP é uma escolha adequada para fluxos de dados em tempo real, especialmente aqueles que admitem perda ou corrompimento de parte de seu conteúdo, tais como vídeos ou voz (VoIP). Aplicações sensíveis a atrasos na rede, mas poucos sensíveis a perdas de pacotes, como jogos de computadores, também podem se utilizar do UDP. As garantias de TCP envolvem retransmissão e espera de dados, como consequência, intensificam os efeitos de uma alta latência de rede.
+O UDP também suporta broadcasting e multicasting. Caso esses recursos sejam necessários, o UDP deverá necessariamente ser utilizado. Algum tratamento de erro pode ser adicionado, mas geralmente aplicações multicast também admitem perda de parte dos pacotes ou fazem retransmissões constantes (tal como o ocorre no protocolo DHCP).
+O UDP não perde tempo com criação ou destruição de conexões. Durante uma conexão, o UDP troca apenas 2 pacotes, enquanto no TCP esse número é superior a 10. Por isso, aplicações que encaixam num modelo de pergunta-resposta também são fortes candidatas a usar UDP. Entretanto, pode ser necessário implementar algoritmos de timeouts, acks e, no mínimo, retransmissão. Nesse caso, vale lembrar que se a troca de mensagens for muito intensa, o protocolo TCP pode voltar a ser vantajoso, já que seu custo de conexão será amortizado.
+Embora o processamento dos pacotes UDP seja realmente mais rápido, quando as garantias de confiabilidade e ordenação são necessárias, é pouco provável que uma implementação em UDP obterá resultados melhores do que o uso direto do TCP. Em primeiro lugar, corre-se o risco de que uma implementação ingênua feita em UDP seja menos eficiente do que os algoritmos já testados e otimizados presentes no TCP. Em segundo lugar, boa parte do protocolo TCP, nos principais sistemas operacionais, opera em modo núcleo, tendo portanto uma execução mais privilegiada do que um protocolo de aplicação teria. Finalmente, é válido lembrar que muitas placas de rede já possuem o TCP programado em seu firmware o que permite, por exemplo, o cálculo de checksum por hardware. Por isso, o protocolo UDP não deveria ser utilizado para fluxos de bytes confiáveis, tais como a transferência de arquivos. Como exemplo, podemos citar o protocolo TFTP, exceção a essa regra, que foi feito para redes locais, de alta confiabilidade. Na internet, seu desempenho é muito inferior ao sua versão confiável, o protocolo FTP.
+
+User Datagram Protocol
+Origem: Wikipédia, a enciclopédia livre.
+Saltar para a navegaçãoSaltar para a pesquisa
+Pilha de protocolos TCP/IP
+Camada de Aplicação
+BGP DHCP DNS FTP HTTP IMAP LDAP MGCP NNTP NTP POP ONC/RPC RIP SIP SMTP SNMP SSH Telnet TLS/SSL XMPP outros...
+Camada de Transporte
+TCP UDP RTP DCCP SCTP RSVP outros...
+Camada de Rede
+OSPF IP IPv4 IPv6 ICMP ICMPv6 ECN IGMP IPsec
+Camada de Ligação de Dados
+NDP ARP túneis... L2TP PPP MAC Ethernet DSL RDIS FDDI outros...
+vde
+O User Datagram Protocol (UDP) é um protocolo simples da camada de transporte. Ele é descrito na RFC 768 e permite que a aplicação envie um datagrama encapsulado num pacote IPv4 ou IPv6 a um destino, porém sem qualquer tipo de garantia que o pacote chegue corretamente (ou de qualquer modo).[1]
+
+O protocolo UDP não é confiável. Caso garantias sejam necessárias, é preciso implementar uma série de estruturas de controle, tais como timeouts, retransmissões, acknowledgements, controle de fluxo, etc. Cada datagrama UDP tem um tamanho e pode ser considerado como um registro indivisível, diferentemente do TCP, que é um protocolo orientado a fluxos de bytes sem início e sem fim.[1]Também dizemos que o UDP é um serviço sem conexão, pois não há necessidade de manter um relacionamento longo entre cliente e o servidor. Assim, um cliente UDP pode criar um socket, enviar um datagrama para um servidor e imediatamente enviar outro datagrama com o mesmo socket para um servidor diferente. Da mesma forma, um servidor poderia ler datagramas vindos de diversos clientes, usando um único socket.
+
+O UDP também fornece os serviços de broadcast e multicast, permitindo que um único cliente envie pacotes para vários outros na rede.
+
+
+Índice
+1	História
+2	Funcionamento
+3	Cabeçalho UDP
+4	Seleção do número de portas no UDP
+5	Vantagens do uso do UDP
+6	Notas e Referências
+7	Ligações externas
+História[editar | editar código-fonte]
+O trabalho original de Vint Cerf e Bob Kahn sobre a Internet descreveu o protocolo TCP, que provia todo o transporte e serviços de encaminhamento na Internet. Kahn queria que o protocolo suportasse uma série de serviços de transporte, desde a entrega sequenciada de dados totalmente confiável (modelo de circuito virtual) até o serviço de datagrama, onde a aplicação fazia uso direto do serviço básico de rede, o que poderia implicar em pacotes ocasionalmente perdidos, corrompidos ou reordenados.
+
+Entretanto, o esforço inicial para implementar TCP resultou numa versão que somente permitiu circuitos virtuais. O modelo funcionou bem para transferência de arquivos e aplicações de logins remotos, mas alguns dos trabalhos em aplicações avançadas como pacotes de voz mostraram que, em alguns casos, a perda de pacotes deveria ser corrigida pela aplicação e não pelo protocolo TCP. Isso levou a uma reorganização do TCP original em dois protocolos: o simples IP que provia apenas o endereçamento e o roteamento dos pacotes individuais e o TCP em separado, que se preocupava com o controle do fluxo e a recuperação de pacotes perdidos.
+
+Para as aplicações que não queriam os serviços de TCP, uma alternativa chamada UDP (User Datagram Protocol) foi adicionada para prover acesso direto ao serviço básico de IP.
+
+Funcionamento[editar | editar código-fonte]
+O UDP dá às aplicações acesso direto ao serviço de entrega de datagramas, como o serviço de entrega que o IP dá. O UDP é pouco confiável, sendo um protocolo não orientado para conexão. Não existem técnicas no protocolo para confirmar que os dados chegaram ao destino corretamente. O UDP usa número de porta de origem e de destino de 16 bits.
+
+O UDP é um acrônimo do termo inglês User Datagram Protocol que significa protocolo de datagramas de utilizador (ou usuário). O UDP faz a entrega de mensagens independentes, designadas por datagramas, entre aplicações ou processos, em sistemas host. A entrega pode ser feita fora de ordem e datagramas podem ser perdidos. A integridade dos dados pode ser conferida por um "checksum" (um campo no cabeçalho de checagem por soma) baseado em complemento de um, de 16 bits.
+
+Os pontos de acesso do UDP são geralmente designados por "Portas de protocolo" ou "portas" ou até "portos", em que cada unidade de transmissão de dados UDP identifica o endereço IP e o número de porta do destino e da fonte da mensagem, os números podendo ser diferentes em ambos os casos.
+
+A diferença básica entre o UDP e o TCP é o fato de que o TCP é um protocolo orientado à conexão e, portanto, inclui vários mecanismos para iniciar, manter e encerrar a comunicação, negociar tamanhos de pacotes, detectar e corrigir erros, evitar congestionamento do fluxo e permitir a retransmissão de pacotes corrompidos, independente da qualidade do meio físicos.
+
+O UDP, por sua vez, é feito para transmitir dados pouco sensíveis, como fluxos de áudio e vídeo, ou para comunicação sem conexão como é o caso da negociação DHCP ou tradução de endereços por DNS. Os dados são transmitidos apenas uma vez, incluindo apenas um frágil, e opcional, sistema de CRC de 16 bits. Os pacotes que chegam corrompidos são simplesmente descartados, sem que o emissor sequer saiba do problema. Por outro lado, a ausência de estruturas de controle complexas garante ao UDP alta eficiência, já que cada pacote é composto praticamente somente por dados.
+
+Cabeçalho UDP[editar | editar código-fonte]
+O cabeçalho UDP é extremamente simples, contendo apenas os números de porta, comprimento da mensagem e o checksum. O cabeçalho dos datagramas UDP é colocado a seguir ao cabeçalho IP.
+
+Porta origem	Porta destino	Comprimento da mensagem	Checksum
+Os campos em laranja são opcionais. A porta de origem geralmente especifica a porta desejada de resposta, mas pode ser omitida. Isso tipicamente ocorre em comunicações broadcast ou mensagens de pânico, que notificam sobre a queda de um equipamento.
+
+Seleção do número de portas no UDP[editar | editar código-fonte]
+Os computadores que pretendem estabelecer uma comunicação devem definir um número de porta. Para o servidor (Processo), e aguarda pela chegada de mensagens, datagramas, o cliente seleciona uma porta local, para recebimento de datagramas e envia datagramas para a porta selecionada para o processo do servidor. Muitos serviços conhecidos usam números de portas reservados, por exemplo: 161 para o Protocolo SNMP.
+
+Vantagens do uso do UDP[editar | editar código-fonte]
+O UDP é uma escolha adequada para fluxos de dados em tempo real, especialmente aqueles que admitem perda ou corrompimento de parte de seu conteúdo, tais como vídeos ou voz (VoIP). Aplicações sensíveis a atrasos na rede, mas poucos sensíveis a perdas de pacotes, como jogos de computadores, também podem se utilizar do UDP. As garantias de TCP envolvem retransmissão e espera de dados, como consequência, intensificam os efeitos de uma alta latência de rede.
+O UDP também suporta broadcasting e multicasting. Caso esses recursos sejam necessários, o UDP deverá necessariamente ser utilizado. Algum tratamento de erro pode ser adicionado, mas geralmente aplicações multicast também admitem perda de parte dos pacotes ou fazem retransmissões constantes (tal como o ocorre no protocolo DHCP).
+O UDP não perde tempo com criação ou destruição de conexões. Durante uma conexão, o UDP troca apenas 2 pacotes, enquanto no TCP esse número é superior a 10. Por isso, aplicações que encaixam num modelo de pergunta-resposta também são fortes candidatas a usar UDP. Entretanto, pode ser necessário implementar algoritmos de timeouts, acks e, no mínimo, retransmissão. Nesse caso, vale lembrar que se a troca de mensagens for muito intensa, o protocolo TCP pode voltar a ser vantajoso, já que seu custo de conexão será amortizado.
+Embora o processamento dos pacotes UDP seja realmente mais rápido, quando as garantias de confiabilidade e ordenação são necessárias, é pouco provável que uma implementação em UDP obterá resultados melhores do que o uso direto do TCP. Em primeiro lugar, corre-se o risco de que uma implementação ingênua feita em UDP seja menos eficiente do que os algoritmos já testados e otimizados presentes no TCP. Em segundo lugar, boa parte do protocolo TCP, nos principais sistemas operacionais, opera em modo núcleo, tendo portanto uma execução mais privilegiada do que um protocolo de aplicação teria. Finalmente, é válido lembrar que muitas placas de rede já possuem o TCP programado em seu firmware o que permite, por exemplo, o cálculo de checksum por hardware. Por isso, o protocolo UDP não deveria ser utilizado para fluxos de bytes confiáveis, tais como a transferência de arquivos. Como exemplo, podemos citar o protocolo TFTP, exceção a essa regra, que foi feito para redes locais, de alta confiabilidade. Na internet, seu desempenho é muito inferior ao sua versão confiável, o protocolo FTP.

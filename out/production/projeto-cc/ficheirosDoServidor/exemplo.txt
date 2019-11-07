@@ -1,0 +1,12 @@
+User Datagram Protocol
+Origem: Wikipédia, a enciclopédia livre.
+Saltar para a navegaçãoSaltar para a pesquisa
+Pilha de protocolos TCP/IP
+Camada de Aplicação
+BGP DHCP DNS FTP HTTP IMAP LDAP MGCP NNTP NTP POP ONC/RPC RIP SIP SMTP SNMP SSH Telnet TLS/SSL XMPP outros...
+Camada de Transporte
+TCP UDP RTP DCCP SCTP RSVP outros...
+Camada de Rede
+OSPF IP IPv4 IPv6 ICMP ICMPv6 ECN IGMP IPsec
+Camada de Ligação de Dados
+NDP ARP túneis... L2TP PPP MAC Ethernet DSL RDIS FDDI outros...

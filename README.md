@@ -1,2 +1,2 @@
 # projeto-cc
-Projeto de Comunicações por Computador
+Projeto de Comunicação por Computadores
