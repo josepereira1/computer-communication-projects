@@ -1,2 +1,6 @@
-# projeto-cc
-Projeto de Comunicação por Computadores
+# computer-communication-projects
+Computer Communication projects
+
+# Team
+- [Henrique Faria](https://github.com/henriquejosefaria)
+- [José Pereira](https://github.com/josepereira1)
